@@ -1,0 +1,81 @@
+{% extends "store/base.html" %}
+{% block title %}{% if active_category %}{{ active_category.name }}{% elif query %}Search: {{ query }}{% else %}Shop{% endif %} | {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="breadcrumb"><a href="{% url 'home' %}">Home</a> / <a href="{% url 'product_list' %}">Shop</a>{% if active_category %} / {{ active_category.name }}{% endif %}</div>
+  <h1>{% if active_category %}{{ active_category.name }}{% elif query %}Results for &ldquo;{{ query }}&rdquo;{% else %}Shop all products{% endif %}</h1>
+  {% if active_category.description %}<p class="muted">{{ active_category.description }}</p>{% endif %}
+</div>
+
+<form method="get" action="{% url 'product_list' %}" class="shop-layout">
+  <aside>
+    <details class="filters" open data-filters>
+      <summary>Filters</summary>
+      <div class="filters-body">
+        <div class="filter-group">
+          <label class="filter-title" for="id_q">Search</label>
+          <input class="input" type="search" id="id_q" name="q" value="{{ query }}" placeholder="Product name" maxlength="100">
+        </div>
+        <div class="filter-group">
+          <span class="filter-title">Category</span>
+          <div class="radio-list">
+            <label class="{% if not active_category %}is-active{% endif %}"><input type="radio" name="category" value="" {% if not active_category %}checked{% endif %} data-autosubmit> All categories</label>
+            {% for c in categories %}
+            <label class="{% if active_category and active_category.pk == c.pk %}is-active{% endif %}"><input type="radio" name="category" value="{{ c.slug }}" {% if active_category and active_category.pk == c.pk %}checked{% endif %} data-autosubmit> {{ c.name }}</label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-title">Price ({{ CURRENCY }})</span>
+          <div class="price-row">
+            <div><label class="small muted" for="id_min_price">Minimum</label><input class="input" type="number" id="id_min_price" name="min_price" min="0" step="0.01" value="{{ min_price }}" placeholder="0"></div>
+            <div><label class="small muted" for="id_max_price">Maximum</label><input class="input" type="number" id="id_max_price" name="max_price" min="0" step="0.01" value="{{ max_price }}" placeholder="Any"></div>
+          </div>
+          {% for e in form.min_price.errors %}<div class="field-error">Minimum price: {{ e }}</div>{% endfor %}
+          {% for e in form.max_price.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Apply Filter</button>
+        <p style="margin:12px 0 0;text-align:center"><a href="{% url 'product_list' %}">Clear all filters</a></p>
+      </div>
+    </details>
+  </aside>
+
+  <section aria-label="Products">
+    <div class="results-bar">
+      <p class="muted" style="margin:0">{{ page_obj.paginator.count }} product{{ page_obj.paginator.count|pluralize }} found</p>
+      <div class="sort-form">
+        <label for="id_sort" class="small muted">Sort by</label>
+        <select class="input" style="width:auto" id="id_sort" name="sort" data-autosubmit>
+          {% for value, label in sort_choices %}<option value="{{ value }}"{% if value == sort %} selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+        <noscript><button class="btn btn-outline btn-sm" type="submit">Sort</button></noscript>
+      </div>
+    </div>
+
+    {% if query or min_price or max_price %}
+    <div class="chips">
+      {% if query %}<span class="chip">Search: {{ query }}</span>{% endif %}
+      {% if min_price %}<span class="chip">Min {{ CURRENCY }}{{ min_price }}</span>{% endif %}
+      {% if max_price %}<span class="chip">Max {{ CURRENCY }}{{ max_price }}</span>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if products %}
+    <div class="product-grid">{% for product in products %}{% include "store/includes/product_card.html" %}{% endfor %}</div>
+    {% include "store/includes/pagination.html" %}
+    {% else %}
+    <div class="empty">
+      <div class="empty-icon" aria-hidden="true">&#128269;</div>
+      <h2>No Products Found</h2>
+      <p>Try changing your search or filters.</p>
+      <a class="btn btn-primary" href="{% url 'product_list' %}">Clear filters</a>
+    </div>
+    {% endif %}
+  </section>
+</form>
+<script>
+  // On small screens the filter panel starts collapsed.
+  (function () { var f = document.querySelector("[data-filters]"); if (f && window.matchMedia("(max-width: 900px)").matches) f.removeAttribute("open"); })();
+</script>
+{% endblock %}

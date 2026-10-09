@@ -1,0 +1,78 @@
+{% extends "store/base.html" %}
+{% block title %}Store Dashboard | {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="section-head">
+  <h1 style="margin:0">Store dashboard</h1>
+  <a class="btn btn-outline btn-sm" href="{% url 'admin:index' %}">Open admin panel</a>
+</div>
+
+<div class="stat-grid">
+  <div class="stat"><span>Total Products</span><strong>{{ total_products }}</strong></div>
+  <div class="stat"><span>Total Orders</span><strong>{{ total_orders }}</strong></div>
+  <div class="stat"><span>Total Customers</span><strong>{{ total_customers }}</strong></div>
+  <div class="stat"><span>Total Revenue</span><strong>{{ CURRENCY }}{{ total_revenue }}</strong><span class="small">Excludes cancelled orders</span></div>
+</div>
+
+<div class="dash-grid">
+  <section class="card">
+    <h3>Recent orders</h3>
+    {% if recent_orders %}
+    <div class="table-wrap" style="border:0">
+      <table class="data">
+        <thead><tr><th>Order</th><th>Customer</th><th class="num">Total</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+        {% for order in recent_orders %}
+          <tr>
+            <td><a href="{% url 'admin:store_order_change' order.pk %}">{{ order.order_number }}</a></td>
+            <td>{{ order.customer_name }}</td>
+            <td class="num">{{ CURRENCY }}{{ order.total_price }}</td>
+            <td>{% include "store/includes/status_badge.html" %}</td>
+            <td>{{ order.created_at|date:"M j" }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}<p class="muted">No orders yet.</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <h3>Order status summary</h3>
+    {% for label, count, value in status_summary %}
+    <div class="bar-row"><span><span class="status status-{{ value }}">{{ label }}</span></span><span class="bar"><i style="width:{% widthratio count total_orders 100 %}%"></i></span><strong>{{ count }}</strong></div>
+    {% endfor %}
+  </section>
+</div>
+
+<div class="dash-grid">
+  <section class="card">
+    <h3>Low Stock Products <span class="muted small">(threshold: {{ low_stock_threshold }} or fewer)</span></h3>
+    {% if low_stock %}
+    <div class="table-wrap" style="border:0">
+      <table class="data">
+        <thead><tr><th>Product</th><th>Category</th><th class="num">Stock</th><th></th></tr></thead>
+        <tbody>
+        {% for p in low_stock %}
+          <tr>
+            <td><a href="{{ p.get_absolute_url }}">{{ p.name }}</a></td><td>{{ p.category.name }}</td>
+            <td class="num"><span class="badge badge-{{ p.stock_css }}">{{ p.stock_quantity }}</span></td>
+            <td class="right"><a class="btn btn-outline btn-sm" href="{% url 'admin:store_product_change' p.pk %}">Update stock</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}<p class="muted">All products are well stocked.</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <h3>Best-selling products</h3>
+    {% if best_sellers %}
+    <ul class="plain">
+      {% for row in best_sellers %}<li style="display:flex;justify-content:space-between;gap:10px;padding:.5rem 0;border-bottom:1px solid var(--line)"><span>{{ row.product_name }}</span><strong>{{ row.units }} sold</strong></li>{% endfor %}
+    </ul>
+    {% else %}<p class="muted">Best sellers will appear once orders are placed.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

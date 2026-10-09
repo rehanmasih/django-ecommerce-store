@@ -1,0 +1,48 @@
+{% with current=request.resolver_match.url_name %}
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="{% url 'home' %}" aria-label="{{ STORE_NAME }} home">
+      <span class="logo-mark" aria-hidden="true">D</span><span class="logo-text">Django Store</span>
+    </a>
+
+    <nav class="main-nav" data-nav aria-label="Main">
+      <a href="{% url 'home' %}"{% if current == 'home' %} class="active" aria-current="page"{% endif %}>Home</a>
+      <a href="{% url 'product_list' %}"{% if current == 'product_list' %} class="active" aria-current="page"{% endif %}>Shop</a>
+      <details class="dropdown">
+        <summary>Categories</summary>
+        <div class="dropdown-menu">
+          {% for c in nav_categories %}<a href="{{ c.get_absolute_url }}">{{ c.name }}</a>{% empty %}<span class="muted small" style="padding:.5rem .75rem;display:block">No categories yet</span>{% endfor %}
+        </div>
+      </details>
+    </nav>
+
+    <form class="search-form" action="{% url 'product_list' %}" method="get" role="search">
+      <input type="search" name="q" value="{{ query|default:'' }}" placeholder="Search products..." aria-label="Search products" maxlength="100">
+      <button type="submit">Search</button>
+    </form>
+
+    <div class="header-actions">
+      {% if user.is_authenticated %}
+      <details class="dropdown">
+        <summary>{{ user.username }}</summary>
+        <div class="dropdown-menu align-right">
+          <a href="{% url 'profile' %}">My profile</a>
+          <a href="{% url 'order_list' %}">My orders</a>
+          {% if user.is_staff %}<a href="{% url 'dashboard' %}">Store dashboard</a><a href="{% url 'admin:index' %}">Admin panel</a>{% endif %}
+          <hr>
+          <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Log out</button></form>
+        </div>
+      </details>
+      {% else %}
+      <a href="{% url 'login' %}">Log in</a>
+      <a href="{% url 'register' %}">Register</a>
+      {% endif %}
+      <a class="cart-link" href="{% url 'cart_detail' %}" aria-label="Cart, {{ cart_count }} item{{ cart_count|pluralize }}">
+        <span aria-hidden="true">🛒</span><span class="label">Cart</span><span class="cart-badge">{{ cart_count }}</span>
+      </a>
+    </div>
+
+    <button class="nav-toggle" type="button" data-nav-toggle aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+  </div>
+</header>
+{% endwith %}

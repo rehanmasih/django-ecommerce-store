@@ -1,0 +1,37 @@
+{% extends "store/base.html" %}
+{% block title %}Checkout | {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="page-head"><h1>Checkout</h1></div>
+<form method="post" class="cart-layout form" novalidate>
+  {% csrf_token %}
+  <div class="card">
+    <h2>Customer information</h2>
+    {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="form-grid">
+      {% include "store/includes/field.html" with field=form.customer_name full=True %}
+      {% include "store/includes/field.html" with field=form.email %}
+      {% include "store/includes/field.html" with field=form.phone %}
+      {% include "store/includes/field.html" with field=form.address full=True %}
+      {% include "store/includes/field.html" with field=form.city %}
+      {% include "store/includes/field.html" with field=form.postal_code %}
+    </div>
+    <h2 style="margin-top:8px">Payment method</h2>
+    <div class="notice notice-ok" style="margin-top:0"><strong>{{ payment_method }}</strong><br>Pay in cash when your order is delivered. No card details are collected.</div>
+  </div>
+
+  <aside class="summary" aria-label="Order summary">
+    <h2>Order Summary</h2>
+    <ul class="plain summary-items">
+      {% for item in cart %}<li><span>{{ item.quantity }} &times; {{ item.product.name }}</span><span>{{ CURRENCY }}{{ item.total_price }}</span></li>{% endfor %}
+    </ul>
+    <div class="summary-row"><span>Subtotal</span><span>{{ CURRENCY }}{{ cart.subtotal }}</span></div>
+    <div class="summary-row"><span>Shipping</span><span>{% if cart.shipping %}{{ CURRENCY }}{{ cart.shipping }}{% else %}Free{% endif %}</span></div>
+    <div class="summary-row summary-total"><span>Total</span><span>{{ CURRENCY }}{{ cart.total }}</span></div>
+    <div style="margin-top:16px">
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Place Order</button>
+      <a class="btn btn-outline btn-block" href="{% url 'cart_detail' %}">Back to cart</a>
+    </div>
+  </aside>
+</form>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "store/base.html" %}
+{% block title %}{{ product.name }} | {{ STORE_NAME }}{% endblock %}
+{% block meta_description %}{{ product.description|truncatechars:150 }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb"><a href="{% url 'home' %}">Home</a> / <a href="{% url 'product_list' %}">Shop</a> / <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a> / {{ product.name }}</div>
+
+<div class="detail">
+  <div class="detail-media">
+    <img src="{{ product.image_url }}" alt="{{ product.name }}" width="800" height="800">
+    {% if product.has_discount %}<span class="badge badge-sale">{{ product.discount_percent }}% OFF</span>{% endif %}
+  </div>
+
+  <div class="detail-info">
+    <a class="product-cat" href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>
+    <h1>{{ product.name }}</h1>
+    <div class="price">
+      <span class="price-now{% if product.has_discount %} is-sale{% endif %}">{{ CURRENCY }}{{ product.current_price }}</span>
+      {% if product.has_discount %}<span class="price-old">{{ CURRENCY }}{{ product.price }}</span>{% endif %}
+    </div>
+    {% if product.has_discount %}<div class="save-line">{{ product.discount_percent }}% OFF &middot; you save {{ CURRENCY }}{{ product.savings }}</div>{% endif %}
+
+    <p class="detail-desc">{{ product.description }}</p>
+
+    <dl class="detail-meta">
+      <div><dt>Category</dt><dd>{{ product.category.name }}</dd></div>
+      <div><dt>Availability</dt><dd><span class="badge badge-{{ product.stock_css }}">{{ product.stock_status }}</span></dd></div>
+      {% if product.is_in_stock %}<div><dt>Stock</dt><dd>{{ product.stock_quantity }}</dd></div>{% endif %}
+    </dl>
+
+    {% if product.is_in_stock %}
+    <form method="post" action="{% url 'cart_add' product.id %}" class="buy-row">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <div>
+        <label class="sr-only" for="id_quantity">Quantity</label>
+        <div class="qty-stepper" data-qty>
+          <button type="button" data-step="-1" aria-label="Decrease quantity">&minus;</button>
+          <input type="number" id="id_quantity" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" inputmode="numeric">
+          <button type="button" data-step="1" aria-label="Increase quantity">+</button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg">Add to Cart</button>
+    </form>
+    {% if in_cart %}<p class="in-cart-note">You have {{ in_cart }} in your cart. <a href="{% url 'cart_detail' %}">View cart</a></p>{% endif %}
+    {% else %}
+    <div class="buy-row"><button type="button" class="btn btn-primary btn-lg" disabled aria-disabled="true">Out of Stock</button></div>
+    <p class="muted small" style="margin-top:10px">This product is currently unavailable.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% if related_products %}
+<section class="section">
+  <div class="section-head"><h2>Related Products</h2><a href="{{ product.category.get_absolute_url }}">More in {{ product.category.name }}</a></div>
+  <div class="product-grid">{% for product in related_products %}{% include "store/includes/product_card.html" %}{% endfor %}</div>
+</section>
+{% endif %}
+{% endblock %}

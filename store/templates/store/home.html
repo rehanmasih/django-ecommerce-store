@@ -1,0 +1,71 @@
+{% extends "store/base.html" %}
+{% load static %}
+{% block title %}{{ STORE_NAME }} | Electronics, fashion, shoes and home essentials{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="container hero-inner">
+    <div>
+      <h1>Discover Products You'll Love</h1>
+      <p>Shop electronics, fashion, shoes, accessories and home essentials. Pay when your order arrives.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="{% url 'product_list' %}">Shop Now</a>
+        <a class="btn btn-light btn-lg" href="#categories">Browse categories</a>
+      </div>
+      <p class="hero-note">Flat shipping {{ CURRENCY }}{{ SHIPPING_FLAT_RATE }}{% if FREE_SHIPPING_THRESHOLD %}, free on orders over {{ CURRENCY }}{{ FREE_SHIPPING_THRESHOLD|floatformat:0 }}{% endif %}.</p>
+    </div>
+    {% if hero_products %}
+    <div class="hero-visual" aria-hidden="true">
+      {% for p in hero_products %}
+      <a class="hero-tile" href="{{ p.get_absolute_url }}" tabindex="-1">
+        <img src="{{ p.image_url }}" alt="">
+        <span class="hero-tile-label">{{ p.name }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section" id="categories">
+  <div class="section-head"><h2>Shop by category</h2></div>
+  {% if categories %}
+  <div class="category-grid">
+    {% for c in categories %}
+    <a class="category-card" href="{{ c.get_absolute_url }}">
+      {% if c.cover %}<img src="{% get_media_prefix %}{{ c.cover }}" alt="" loading="lazy">{% endif %}
+      <span>{{ c.name }}<small>{{ c.product_total }} product{{ c.product_total|pluralize }}</small></span>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty"><h3>No categories yet</h3><p>Categories will appear here once they are added in the admin panel.</p></div>
+  {% endif %}
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Featured Products</h2><a href="{% url 'product_list' %}">View all products</a></div>
+  {% if featured_products %}
+  <div class="product-grid">{% for product in featured_products %}{% include "store/includes/product_card.html" %}{% endfor %}</div>
+  {% else %}
+  <div class="empty"><h3>No featured products yet</h3><p>Mark products as featured in the admin panel to show them here.</p></div>
+  {% endif %}
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Latest Products</h2><a href="{% url 'product_list' %}?sort=newest">See what's new</a></div>
+  {% if latest_products %}
+  <div class="product-grid">{% for product in latest_products %}{% include "store/includes/product_card.html" %}{% endfor %}</div>
+  {% else %}
+  <div class="empty"><h3>No products yet</h3><p>New products will appear here as soon as they are added.</p></div>
+  {% endif %}
+</section>
+
+<section class="trust-strip" aria-label="Ordering information">
+  <div><strong>Cash on delivery</strong><span>Place your order now, pay when it arrives.</span></div>
+  <div><strong>Simple shipping</strong><span>{{ CURRENCY }}{{ SHIPPING_FLAT_RATE }} flat rate{% if FREE_SHIPPING_THRESHOLD %}, free over {{ CURRENCY }}{{ FREE_SHIPPING_THRESHOLD|floatformat:0 }}{% endif %}.</span></div>
+  <div><strong>Track every order</strong><span>See your order history and status in your account.</span></div>
+</section>
+{% endblock %}

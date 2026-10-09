@@ -1,0 +1,20 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ STORE_NAME }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Shop electronics, clothing, shoes, accessories and home essentials.{% endblock %}">
+  <link rel="stylesheet" href="{% static 'store/css/style.css' %}">
+</head>
+<body>
+  {% include "store/includes/navbar.html" %}
+  {% block hero %}{% endblock %}
+  {% include "store/includes/messages.html" %}
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+  {% include "store/includes/footer.html" %}
+  <script src="{% static 'store/js/app.js' %}" defer></script>
+</body>
+</html>

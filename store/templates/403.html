@@ -1,0 +1,10 @@
+{% extends "store/base.html" %}
+{% block title %}Access denied | {{ STORE_NAME }}{% endblock %}
+{% block content %}
+<div class="empty">
+  <div class="empty-icon" aria-hidden="true">!</div>
+  <h1>Access denied</h1>
+  <p>You don't have permission to view this page.</p>
+  <a class="btn btn-primary" href="{% url 'home' %}">Back to home</a>
+</div>
+{% endblock %}

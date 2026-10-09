@@ -1,0 +1,40 @@
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <a class="logo" href="{% url 'home' %}" style="color:#fff"><span class="logo-mark" aria-hidden="true">D</span>Django Store</a>
+      <p style="margin-top:14px;max-width:34ch">Electronics, fashion, shoes, accessories and home essentials in one place.</p>
+    </div>
+    <div>
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="{% url 'product_list' %}">All products</a></li>
+        {% for c in nav_categories %}<li><a href="{{ c.get_absolute_url }}">{{ c.name }}</a></li>{% endfor %}
+      </ul>
+    </div>
+    <div>
+      <h4>Account</h4>
+      <ul>
+        {% if user.is_authenticated %}
+        <li><a href="{% url 'profile' %}">My profile</a></li>
+        <li><a href="{% url 'order_list' %}">My orders</a></li>
+        {% else %}
+        <li><a href="{% url 'login' %}">Log in</a></li>
+        <li><a href="{% url 'register' %}">Create account</a></li>
+        {% endif %}
+        <li><a href="{% url 'cart_detail' %}">Shopping cart</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Ordering</h4>
+      <ul>
+        <li>Pay by cash on delivery</li>
+        <li>Flat shipping {{ CURRENCY }}{{ SHIPPING_FLAT_RATE }}</li>
+        {% if FREE_SHIPPING_THRESHOLD %}<li>Free shipping over {{ CURRENCY }}{{ FREE_SHIPPING_THRESHOLD|floatformat:0 }}</li>{% endif %}
+      </ul>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>&copy; {% now "Y" %} {{ STORE_NAME }}. Demo store: no real payments are taken.</span>
+    <span>Built with Python &amp; Django</span>
+  </div>
+</footer>

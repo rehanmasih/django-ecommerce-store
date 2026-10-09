@@ -1,0 +1,20 @@
+{% extends "store/base.html" %}
+{% block title %}Order {{ order.order_number }} placed | {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="card confirm">
+  <div class="confirm-check" aria-hidden="true">&#10003;</div>
+  <h1>Order Placed Successfully!</h1>
+  <p class="muted">Thank you for your order, {{ order.customer_name }}. We've received it and will start processing it shortly.</p>
+  <dl class="confirm-facts">
+    <div><dt>Order #</dt><dd>{{ order.order_number }}</dd></div>
+    <div><dt>Total</dt><dd>{{ CURRENCY }}{{ order.total_price }}</dd></div>
+    <div><dt>Payment</dt><dd>{{ order.payment_method }}</dd></div>
+    <div><dt>Status</dt><dd>{% include "store/includes/status_badge.html" %}</dd></div>
+  </dl>
+  <div class="confirm-actions">
+    <a class="btn btn-primary" href="{% url 'order_detail' order.pk %}">View Order</a>
+    <a class="btn btn-outline" href="{% url 'product_list' %}">Continue Shopping</a>
+  </div>
+</div>
+{% endblock %}

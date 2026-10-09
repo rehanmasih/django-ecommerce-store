@@ -1,0 +1,17 @@
+{% extends "store/base.html" %}
+{% block title %}Log in | {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <h1>Log in</h1>
+  <div class="card">
+    <form method="post" class="form" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      {% include "store/includes/form_fields.html" %}
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Login</button>
+    </form>
+  </div>
+  <p class="auth-alt">Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+</div>
+{% endblock %}

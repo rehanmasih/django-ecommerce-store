@@ -1,0 +1,62 @@
+{% extends "store/base.html" %}
+{% block title %}Shopping Cart | {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="page-head"><h1>Shopping Cart</h1></div>
+
+{% if cart %}
+<div class="cart-layout">
+  <div class="cart-list">
+    <div class="cart-head" aria-hidden="true"><span>Product</span><span>Quantity</span><span class="right">Price</span><span class="right">Total</span></div>
+    {% for item in cart %}
+    {% with p=item.product %}
+    <div class="cart-item">
+      <div class="cart-product">
+        <a href="{{ p.get_absolute_url }}"><img src="{{ p.image_url }}" alt="" width="76" height="76"></a>
+        <div>
+          <a href="{{ p.get_absolute_url }}">{{ p.name }}</a>
+          <div class="muted small">{{ p.category.name }}{% if item.quantity > p.stock_quantity %} &middot; <span style="color:var(--bad)">only {{ p.stock_quantity }} in stock</span>{% endif %}</div>
+          <form method="post" action="{% url 'cart_remove' p.id %}">{% csrf_token %}<button type="submit" class="btn-danger-link" aria-label="Remove {{ p.name }} from cart">Remove</button></form>
+        </div>
+      </div>
+      <div class="cart-qty">
+        <form method="post" action="{% url 'cart_update' p.id %}">
+          {% csrf_token %}
+          <button type="submit" name="action" value="set" class="sr-only" tabindex="-1">Update quantity</button>
+          <div class="qty-stepper" data-qty data-submit>
+            <button type="submit" name="action" value="decrease" data-step="-1" aria-label="Decrease quantity of {{ p.name }}">&minus;</button>
+            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ p.stock_quantity }}" aria-label="Quantity of {{ p.name }}" inputmode="numeric">
+            <button type="submit" name="action" value="increase" data-step="1" aria-label="Increase quantity of {{ p.name }}">+</button>
+          </div>
+          <button type="submit" name="action" value="set" class="btn-link">Update</button>
+        </form>
+      </div>
+      <div class="cart-line-price">{{ CURRENCY }}{{ item.unit_price }}</div>
+      <div class="cart-line-total">{{ CURRENCY }}{{ item.total_price }}</div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+  </div>
+
+  <aside class="summary" aria-label="Order summary">
+    <h2>Order summary</h2>
+    <div class="summary-row"><span>Subtotal</span><span>{{ CURRENCY }}{{ cart.subtotal }}</span></div>
+    <div class="summary-row"><span>Shipping</span><span>{% if cart.shipping %}{{ CURRENCY }}{{ cart.shipping }}{% else %}Free{% endif %}</span></div>
+    <div class="summary-row summary-total"><span>Total</span><span>{{ CURRENCY }}{{ cart.total }}</span></div>
+    {% if cart.shipping and FREE_SHIPPING_THRESHOLD %}<div class="notice notice-ok">Spend {{ CURRENCY }}{{ FREE_SHIPPING_THRESHOLD }} or more for free shipping.</div>{% endif %}
+    <div style="margin-top:16px">
+      <a class="btn btn-primary btn-block btn-lg" href="{% url 'checkout' %}">Proceed to Checkout</a>
+      <a class="btn btn-outline btn-block" href="{% url 'product_list' %}">Continue Shopping</a>
+    </div>
+    {% if not user.is_authenticated %}<p class="muted small" style="margin:12px 0 0">You'll be asked to log in or register before placing your order.</p>{% endif %}
+  </aside>
+</div>
+{% else %}
+<div class="empty">
+  <div class="empty-icon" aria-hidden="true">&#128722;</div>
+  <h2>Your Cart is Empty</h2>
+  <p>You haven't added any products yet.</p>
+  <a class="btn btn-primary" href="{% url 'product_list' %}">Continue Shopping</a>
+</div>
+{% endif %}
+{% endblock %}

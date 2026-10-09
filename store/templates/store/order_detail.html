@@ -1,0 +1,66 @@
+{% extends "store/base.html" %}
+{% block title %}Order {{ order.order_number }} | {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb"><a href="{% url 'order_list' %}">My orders</a> / {{ order.order_number }}</div>
+<div class="section-head">
+  <h1 style="margin:0">Order {{ order.order_number }}</h1>
+  {% include "store/includes/status_badge.html" %}
+</div>
+
+<div class="card" style="margin-bottom:20px">
+  <h3>Order status</h3>
+  {% if cancelled %}
+  <p style="margin:0" class="muted">This order was cancelled.</p>
+  {% else %}
+  <ol class="timeline plain" aria-label="Order progress">
+    {% for step in timeline %}<li class="{% if step.done %}done{% endif %}{% if step.current %} current{% endif %}">{{ step.label }}</li>{% endfor %}
+  </ol>
+  {% endif %}
+</div>
+
+<div class="detail-cols" style="margin-bottom:20px">
+  <div class="card">
+    <h3>Customer information</h3>
+    <dl class="kv">
+      <div><dt>Name</dt><dd>{{ order.customer_name }}</dd></div>
+      <div><dt>Email</dt><dd>{{ order.email }}</dd></div>
+      <div><dt>Phone</dt><dd>{{ order.phone }}</dd></div>
+      <div><dt>Address</dt><dd>{{ order.address|linebreaksbr }}</dd></div>
+      <div><dt>City</dt><dd>{{ order.city }}</dd></div>
+      <div><dt>Postal code</dt><dd>{{ order.postal_code }}</dd></div>
+    </dl>
+  </div>
+  <div class="card">
+    <h3>Order details</h3>
+    <dl class="kv">
+      <div><dt>Order date</dt><dd>{{ order.created_at|date:"F j, Y, g:i A" }}</dd></div>
+      <div><dt>Status</dt><dd>{{ order.get_status_display }}</dd></div>
+      <div><dt>Payment</dt><dd>{{ order.payment_method }}</dd></div>
+      <div><dt>Last update</dt><dd>{{ order.updated_at|date:"M j, Y" }}</dd></div>
+    </dl>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table class="data">
+    <thead><tr><th>Product</th><th class="num">Price</th><th class="num">Quantity</th><th class="num">Subtotal</th></tr></thead>
+    <tbody>
+    {% for item in order.items.all %}
+      <tr>
+        <td>{% if item.product %}<a href="{{ item.product.get_absolute_url }}">{{ item.product_name }}</a>{% else %}{{ item.product_name }}{% endif %}</td>
+        <td class="num">{{ CURRENCY }}{{ item.price }}</td>
+        <td class="num">{{ item.quantity }}</td>
+        <td class="num">{{ CURRENCY }}{{ item.subtotal }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr><td colspan="3" class="num">Subtotal</td><td class="num">{{ CURRENCY }}{{ order.subtotal }}</td></tr>
+      <tr><td colspan="3" class="num">Shipping</td><td class="num">{% if order.shipping_cost %}{{ CURRENCY }}{{ order.shipping_cost }}{% else %}Free{% endif %}</td></tr>
+      <tr><td colspan="3" class="num"><strong>Total</strong></td><td class="num"><strong>{{ CURRENCY }}{{ order.total_price }}</strong></td></tr>
+    </tfoot>
+  </table>
+</div>
+<p style="margin-top:20px"><a class="btn btn-outline" href="{% url 'order_list' %}">Back to my orders</a></p>
+{% endblock %}

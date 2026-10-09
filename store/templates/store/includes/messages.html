@@ -1,0 +1,10 @@
+{% if messages %}
+<div class="container messages" role="status" aria-live="polite">
+  {% for message in messages %}
+  <div class="message message-{{ message.level_tag|default:'info' }}">
+    <span>{{ message }}</span>
+    <button type="button" data-dismiss aria-label="Dismiss message">&times;</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
